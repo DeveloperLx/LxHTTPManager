@@ -14,7 +14,7 @@
 		B614465E1B7F452800A9D62A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B614465C1B7F452800A9D62A /* Main.storyboard */; };
 		B61446601B7F452800A9D62A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B614465F1B7F452800A9D62A /* Images.xcassets */; };
 		B61446631B7F452800A9D62A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = B61446611B7F452800A9D62A /* LaunchScreen.xib */; };
-		B614467E1B7F62B800A9D62A /* LxHTTPManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B614467D1B7F62B800A9D62A /* LxHTTPManager.m */; };
+		B61446811B7F821000A9D62A /* LxHTTPManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B61446801B7F821000A9D62A /* LxHTTPManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,8 +31,8 @@
 		B614465D1B7F452800A9D62A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B614465F1B7F452800A9D62A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		B61446621B7F452800A9D62A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		B614467C1B7F62B800A9D62A /* LxHTTPManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LxHTTPManager.h; sourceTree = "<group>"; };
-		B614467D1B7F62B800A9D62A /* LxHTTPManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LxHTTPManager.m; sourceTree = "<group>"; };
+		B614467F1B7F821000A9D62A /* LxHTTPManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LxHTTPManager.h; path = ../../LxHTTPManager/LxHTTPManager.h; sourceTree = "<group>"; };
+		B61446801B7F821000A9D62A /* LxHTTPManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LxHTTPManager.m; path = ../../LxHTTPManager/LxHTTPManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,8 +110,8 @@
 		B61446781B7F483400A9D62A /* LxHTTPManager */ = {
 			isa = PBXGroup;
 			children = (
-				B614467C1B7F62B800A9D62A /* LxHTTPManager.h */,
-				B614467D1B7F62B800A9D62A /* LxHTTPManager.m */,
+				B614467F1B7F821000A9D62A /* LxHTTPManager.h */,
+				B61446801B7F821000A9D62A /* LxHTTPManager.m */,
 			);
 			name = LxHTTPManager;
 			sourceTree = "<group>";
@@ -222,7 +222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B614465B1B7F452800A9D62A /* ViewController.m in Sources */,
-				B614467E1B7F62B800A9D62A /* LxHTTPManager.m in Sources */,
+				B61446811B7F821000A9D62A /* LxHTTPManager.m in Sources */,
 				B61446581B7F452800A9D62A /* AppDelegate.m in Sources */,
 				B61446551B7F452800A9D62A /* main.m in Sources */,
 			);

@@ -8,7 +8,7 @@
 
 #import <AFNetworking/AFNetworking.h>
 
-#pragma mark - RequestName
+#pragma mark - RequestKey
 
 #define stringify    __STRING
 #define DECLARE_STRING_CONST(str) static NSString * const str = @stringify(str)
@@ -23,11 +23,10 @@ DECLARE_STRING_CONST(REQUEST_CHANGE_PASSWORD);
 DECLARE_STRING_CONST(REQUEST_USER_DETAIL);
 DECLARE_STRING_CONST(REQUEST_FRIEND_LIST);
 
-
 #pragma mark - constants
 
-static NSString * const ROOT_ADDRESS = @"http://";
-static NSString * const IMAGE_ROOT_ADDRESS = @"http://";
+static NSString * const ROOT_ADDRESS = @"http://...";
+static NSString * const IMAGE_ROOT_ADDRESS = @"http://...";
 
 static NSTimeInterval const REQUEST_TIMEOUT_DURATION = 60;
 static NSTimeInterval const JSON_CACHE_DURATION = 7 * 24 * 60 * 60;
@@ -46,13 +45,20 @@ typedef void (^ResponseCallback)(NSDictionary * responseDictionary, NSError * er
 + (NSInteger)statusCodeForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
 + (NSString *)statusMessageForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
 
-+ (AFHTTPRequestOperation *)GET:(NSString *)requestName
++ (AFHTTPRequestOperation *)GET:(NSString *)requestkey
                  withParameters:(NSDictionary *)parameters
                responseCallBack:(ResponseCallback)responseCallBack;
 
-+ (AFHTTPRequestOperation *)POST:(NSString *)requestName
++ (AFHTTPRequestOperation *)POST:(NSString *)requestkey
                   withParameters:(NSDictionary *)parameters
                 responseCallBack:(ResponseCallback)responseCallBack;
+
++ (AFHTTPRequestOperation *)uploadData:(NSData *)data
+                         forRequestkey:(NSString *)requestkey
+                        withParameters:(NSDictionary *)parameters
+                              fileName:(NSString *)fileName
+                              mimeType:(NSString *)mimeType
+                      responseCallBack:(ResponseCallback)responseCallBack;
 
 #pragma mark - cache
 

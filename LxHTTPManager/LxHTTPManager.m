@@ -10,19 +10,6 @@
 
 @implementation LxHTTPManager
 
-+ (AFHTTPRequestOperationManager *)sharedOperationManager
-{
-    static AFHTTPRequestOperationManager * sharedOperationManager = nil;
-    static dispatch_once_t onceToken = 0;
-    dispatch_once(&onceToken, ^{
-        
-        sharedOperationManager = [[AFHTTPRequestOperationManager alloc]init];
-        sharedOperationManager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
-        sharedOperationManager.requestSerializer.timeoutInterval = REQUEST_TIMEOUT_DURATION;
-    });
-    return sharedOperationManager;
-}
-
 + (NSDictionary *)requestDictionary
 {
     static NSDictionary * requestDictionary = nil;
@@ -42,6 +29,19 @@
                               };
     });
     return requestDictionary;
+}
+
++ (AFHTTPRequestOperationManager *)sharedOperationManager
+{
+    static AFHTTPRequestOperationManager * sharedOperationManager = nil;
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        
+        sharedOperationManager = [[AFHTTPRequestOperationManager alloc]init];
+        sharedOperationManager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+        sharedOperationManager.requestSerializer.timeoutInterval = REQUEST_TIMEOUT_DURATION;
+    });
+    return sharedOperationManager;
 }
 
 + (NSString *)urlStringForRequestKey:(NSString *)requestKey
@@ -67,18 +67,17 @@
 
 + (NSString *)statusMessageForResponseDictionary:(NSDictionary *)responseDictionary
 {
-
     return @"";
 }
 
-+ (AFHTTPRequestOperation *)GET:(NSString *)requestName
++ (AFHTTPRequestOperation *)GET:(NSString *)requestKey
                  withParameters:(NSDictionary *)parameters
                responseCallBack:(ResponseCallback)responseCallBack
 {
-    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestName];
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
     PRINTF(@"-------Request begin-------"); //
-
+    
     AFHTTPRequestOperation * requestOperation =
     [[LxHTTPManager sharedOperationManager]
      GET:urlString
@@ -99,11 +98,11 @@
     return requestOperation;
 }
 
-+ (AFHTTPRequestOperation *)POST:(NSString *)requestName
++ (AFHTTPRequestOperation *)POST:(NSString *)requestKey
                   withParameters:(NSDictionary *)parameters
                 responseCallBack:(ResponseCallback)responseCallBack
 {
-    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestName];
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
     PRINTF(@"-------Request begin-------"); //
     
@@ -124,7 +123,37 @@
                                 responseCallBack:responseCallBack];
      }];
     
-     return requestOperation;
+    return requestOperation;
+}
+
++ (AFHTTPRequestOperation *)uploadData:(NSData *)data
+                         forRequestkey:(NSString *)requestkey
+                        withParameters:(NSDictionary *)parameters
+                              fileName:(NSString *)fileName
+                              mimeType:(NSString *)mimeType
+                      responseCallBack:(ResponseCallback)responseCallBack
+{
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
+    
+    urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
+                                                               parameters:parameters];
+    
+    AFHTTPRequestOperation * requestOperation =
+    [[LxHTTPManager sharedOperationManager]
+     POST:urlString
+     parameters:nil
+     constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+         [formData appendPartWithFileData:data name:@"file[]" fileName:fileName mimeType:mimeType];
+     } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+         [LxHTTPManager dealWithSuccessOperation:operation
+                                  responseObject:responseObject
+                                responseCallBack:responseCallBack];
+     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+         [LxHTTPManager dealWithFailureOperation:operation
+                                           error:error
+                                responseCallBack:responseCallBack];
+     }];
+    return requestOperation;
 }
 
 + (void)dealWithSuccessOperation:(AFHTTPRequestOperation *)operation
@@ -162,6 +191,25 @@
     responseCallBack(nil, error);
 }
 
++ (NSString *)buildCompleteGetUrlStringWithBaseUrlString:(NSString *)baseUrlString
+                                              parameters:(NSDictionary *)parameters
+{
+    NSMutableArray * keyValuePairsArray = [NSMutableArray array];
+    
+    [parameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        [keyValuePairsArray addObject:[NSString stringWithFormat:@"%@=%@", key, obj]];
+    }];
+    
+    NSString * keyValuePairsString = [keyValuePairsArray componentsJoinedByString:@"&"];
+    keyValuePairsString = [keyValuePairsString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    NSString * completeGetUrlString = [NSString stringWithFormat:@"%@?%@", baseUrlString, keyValuePairsString];
+    
+    NSCAssert([NSURL URLWithString:completeGetUrlString], @"%@ 不是一个合法的URL字符串", completeGetUrlString);
+    
+    return completeGetUrlString;
+}
+
 #pragma mark - cache
 
 + (NSString *)cachesDirectory
@@ -175,16 +223,16 @@
     if (isDirectory == NO || directoryExists == NO) {
         BOOL createDirectorySuccess = [[NSFileManager defaultManager]createDirectoryAtPath:cachesDirectory withIntermediateDirectories:YES attributes:nil error:&error];
         if (createDirectorySuccess) {
-            PRINTF(@"创建缓存目录成功：%@", error);
+            PRINTF(@"LxHTTPManager: 创建缓存目录成功：%@", error);
             return nil;
         }
         else {
-            PRINTF(@"创建缓存目录失败：%@", error);
+            PRINTF(@"LxHTTPManager: 创建缓存目录失败：%@", error);
             return nil;
         }
     }
     else {
-        PRINTF(@"创建缓存目录已存在");
+        PRINTF(@"LxHTTPManager: 创建缓存目录已存在");
     }
     
     return cachesDirectory;
@@ -209,15 +257,15 @@
         
         BOOL createFileSuccess = [[NSFileManager defaultManager]createFileAtPath:cachePath contents:nil attributes:nil];
         if (createFileSuccess == NO) {
-            PRINTF(@"创建缓存文件失败"); //
+            PRINTF(@"LxHTTPManager: 创建缓存文件失败"); //
             return nil;
         }
         else {
-            PRINTF(@"创建缓存文件成功"); //
+            PRINTF(@"LxHTTPManager: 创建缓存文件成功"); //
         }
     }
     else {
-        PRINTF(@"缓存文件之前已存在"); //
+        PRINTF(@"LxHTTPManager: 缓存文件之前已存在"); //
     }
     
     return cachePath;
@@ -231,11 +279,11 @@
     
     BOOL saveSuccess = [cache writeToFile:cachePath atomically:YES];
     if (saveSuccess) {
-        PRINTF(@"储存缓存记录成功"); //
+        PRINTF(@"LxHTTPManager: 储存缓存记录成功"); //
         return saveSuccess;
     }
     else {
-        PRINTF(@"储存缓存记录失败"); //
+        PRINTF(@"LxHTTPManager: 储存缓存记录失败"); //
         return saveSuccess;
     }
 }
@@ -243,7 +291,34 @@
 + (NSDictionary *)cacheWithIdentifier:(NSString *)cacheIdentifier
 {
     NSString * cachePath = [LxHTTPManager cachePathWithIdentifier:cacheIdentifier];
-    return [NSDictionary dictionaryWithContentsOfFile:cachePath];
+    NSDictionary * cache = [NSDictionary dictionaryWithContentsOfFile:cachePath];
+    if (cache) {
+        PRINTF(@"LxHTTPManager: 并不存在缓存");
+    }
+    NSError * error = nil;
+    NSDictionary * cacheFileAttributes = [[NSFileManager defaultManager]attributesOfItemAtPath:cachePath error:&error];
+    if (error) {
+        
+        PRINTF(@"LxHTTPManager: 缓存已过期");
+    }
+    else if ([[NSDate date]timeIntervalSince1970] - [cacheFileAttributes.fileModificationDate timeIntervalSince1970] > JSON_CACHE_DURATION) {
+        
+        PRINTF(@"LxHTTPManager: 缓存已过期");
+        
+        BOOL removeCacheSuccess = [[NSFileManager defaultManager]removeItemAtPath:cachePath error:&error];
+        if (removeCacheSuccess) {
+            PRINTF(@"LxHTTPManager: 移除已过期的缓存成功");
+        }
+        else {
+            PRINTF(@"LxHTTPManager: 移除已过期的缓存失败");
+        }
+        return nil;
+    }
+    else {
+        
+    }
+    
+    return cache;
 }
 
 @end
