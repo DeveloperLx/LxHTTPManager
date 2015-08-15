@@ -71,7 +71,7 @@
 }
 
 + (AFHTTPRequestOperation *)GET:(NSString *)requestKey
-                 withParameters:(NSDictionary *)parameters
+                     parameters:(NSDictionary *)parameters
                responseCallBack:(ResponseCallback)responseCallBack
 {
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
@@ -99,7 +99,7 @@
 }
 
 + (AFHTTPRequestOperation *)POST:(NSString *)requestKey
-                  withParameters:(NSDictionary *)parameters
+                      parameters:(NSDictionary *)parameters
                 responseCallBack:(ResponseCallback)responseCallBack
 {
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
@@ -128,7 +128,7 @@
 
 + (AFHTTPRequestOperation *)uploadData:(NSData *)data
                          forRequestkey:(NSString *)requestkey
-                        withParameters:(NSDictionary *)parameters
+                            parameters:(NSDictionary *)parameters
                               fileName:(NSString *)fileName
                               mimeType:(NSString *)mimeType
                       responseCallBack:(ResponseCallback)responseCallBack
@@ -154,6 +154,56 @@
                                 responseCallBack:responseCallBack];
      }];
     return requestOperation;
+}
+
++ (AFHTTPRequestOperation *)downloadFrom:(NSString *)requestkey
+                              parameters:(NSDictionary *)parameters
+                             toLocalPath:(NSString *)localPath
+                        progressCallBack:(ProgressCallBack)progressCallBack
+                        responseCallBack:(ResponseCallback)responseCallBack
+{
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
+    
+    urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
+                                                               parameters:parameters];
+    
+    NSMutableURLRequest * downloadRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    [[NSURLCache sharedURLCache] removeCachedResponseForRequest:downloadRequest];
+    
+    AFHTTPRequestOperation * downloadOperation = [[AFHTTPRequestOperation alloc]initWithRequest:downloadRequest];
+    
+    unsigned long long downloadedPartFileSize = 0;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:localPath]) {
+        
+        PRINTF(@"LxHTTPManager: 曾下载过该文件");
+        
+        NSError * error = nil;
+        
+        NSDictionary * fileAttributes = [[NSFileManager defaultManager]attributesOfItemAtPath:localPath error:&error];
+        downloadedPartFileSize = [fileAttributes fileSize];
+        NSString * headerRangeFieldValue = [NSString stringWithFormat:@"bytes=%llu-", downloadedPartFileSize];
+        [downloadRequest setValue:headerRangeFieldValue forHTTPHeaderField:@"Range"];
+    }
+    
+    downloadOperation.outputStream = [NSOutputStream outputStreamToFileAtPath:localPath append:YES];
+    
+    downloadOperation.downloadProgressBlock = ^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+        
+        progressCallBack((NSInteger)bytesRead, (NSInteger)totalBytesRead, (NSInteger)totalBytesExpectedToRead);
+    };
+    
+    [downloadOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [LxHTTPManager dealWithSuccessOperation:operation
+                                 responseObject:responseObject
+                               responseCallBack:responseCallBack];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [LxHTTPManager dealWithFailureOperation:operation
+                                          error:error
+                               responseCallBack:responseCallBack];
+    }];
+    
+    return downloadOperation;
 }
 
 + (void)dealWithSuccessOperation:(AFHTTPRequestOperation *)operation

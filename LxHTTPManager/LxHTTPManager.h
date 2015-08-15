@@ -33,6 +33,7 @@ static NSTimeInterval const JSON_CACHE_DURATION = 7 * 24 * 60 * 60;
 static NSTimeInterval const IMAGE_CACHE_DURATION = 7 * 24 * 60 * 60;
 
 typedef void (^ResponseCallback)(NSDictionary * responseDictionary, NSError * error);
+typedef void (^ProgressCallBack)(NSInteger bytesRead, NSInteger totalBytesRead, NSInteger totalBytesExpectedToRead);
 
 @interface LxHTTPManager : NSObject
 
@@ -45,20 +46,26 @@ typedef void (^ResponseCallback)(NSDictionary * responseDictionary, NSError * er
 + (NSInteger)statusCodeForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
 + (NSString *)statusMessageForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
 
-+ (AFHTTPRequestOperation *)GET:(NSString *)requestkey
-                 withParameters:(NSDictionary *)parameters
++ (AFHTTPRequestOperation *)GET:(NSString *)requestKey
+                     parameters:(NSDictionary *)parameters
                responseCallBack:(ResponseCallback)responseCallBack;
 
-+ (AFHTTPRequestOperation *)POST:(NSString *)requestkey
-                  withParameters:(NSDictionary *)parameters
++ (AFHTTPRequestOperation *)POST:(NSString *)requestKey
+                      parameters:(NSDictionary *)parameters
                 responseCallBack:(ResponseCallback)responseCallBack;
 
 + (AFHTTPRequestOperation *)uploadData:(NSData *)data
                          forRequestkey:(NSString *)requestkey
-                        withParameters:(NSDictionary *)parameters
+                            parameters:(NSDictionary *)parameters
                               fileName:(NSString *)fileName
                               mimeType:(NSString *)mimeType
                       responseCallBack:(ResponseCallback)responseCallBack;
+
++ (AFHTTPRequestOperation *)downloadFrom:(NSString *)requestkey
+                              parameters:(NSDictionary *)parameters
+                             toLocalPath:(NSString *)localPath
+                        progressCallBack:(ProgressCallBack)progressCallBack
+                        responseCallBack:(ResponseCallback)responseCallBack;
 
 #pragma mark - cache
 
