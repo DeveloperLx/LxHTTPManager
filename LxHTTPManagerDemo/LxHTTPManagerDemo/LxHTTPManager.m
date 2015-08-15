@@ -70,14 +70,14 @@
     return @"";
 }
 
-+ (AFHTTPRequestOperation *)GET:(NSString *)requestName
++ (AFHTTPRequestOperation *)GET:(NSString *)requestKey
                  withParameters:(NSDictionary *)parameters
                responseCallBack:(ResponseCallback)responseCallBack
 {
-    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestName];
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
     PRINTF(@"-------Request begin-------"); //
-
+    
     AFHTTPRequestOperation * requestOperation =
     [[LxHTTPManager sharedOperationManager]
      GET:urlString
@@ -98,11 +98,11 @@
     return requestOperation;
 }
 
-+ (AFHTTPRequestOperation *)POST:(NSString *)requestName
++ (AFHTTPRequestOperation *)POST:(NSString *)requestKey
                   withParameters:(NSDictionary *)parameters
                 responseCallBack:(ResponseCallback)responseCallBack
 {
-    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestName];
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
     PRINTF(@"-------Request begin-------"); //
     
@@ -123,7 +123,37 @@
                                 responseCallBack:responseCallBack];
      }];
     
-     return requestOperation;
+    return requestOperation;
+}
+
++ (AFHTTPRequestOperation *)uploadData:(NSData *)data
+                         forRequestkey:(NSString *)requestkey
+                        withParameters:(NSDictionary *)parameters
+                              fileName:(NSString *)fileName
+                              mimeType:(NSString *)mimeType
+                      responseCallBack:(ResponseCallback)responseCallBack
+{
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
+    
+    urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
+                                                               parameters:parameters];
+    
+    AFHTTPRequestOperation * requestOperation =
+    [[LxHTTPManager sharedOperationManager]
+     POST:urlString
+     parameters:nil
+     constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+         [formData appendPartWithFileData:data name:@"file[]" fileName:fileName mimeType:mimeType];
+     } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+         [LxHTTPManager dealWithSuccessOperation:operation
+                                  responseObject:responseObject
+                                responseCallBack:responseCallBack];
+     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+         [LxHTTPManager dealWithFailureOperation:operation
+                                           error:error
+                                responseCallBack:responseCallBack];
+     }];
+    return requestOperation;
 }
 
 + (void)dealWithSuccessOperation:(AFHTTPRequestOperation *)operation
@@ -159,6 +189,25 @@
     PRINTF(@"LxHTTPManager: error: %@", error);    //
     PRINTF(@"---------Request failed---------"); //
     responseCallBack(nil, error);
+}
+
++ (NSString *)buildCompleteGetUrlStringWithBaseUrlString:(NSString *)baseUrlString
+                                              parameters:(NSDictionary *)parameters
+{
+    NSMutableArray * keyValuePairsArray = [NSMutableArray array];
+    
+    [parameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        [keyValuePairsArray addObject:[NSString stringWithFormat:@"%@=%@", key, obj]];
+    }];
+    
+    NSString * keyValuePairsString = [keyValuePairsArray componentsJoinedByString:@"&"];
+    keyValuePairsString = [keyValuePairsString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    NSString * completeGetUrlString = [NSString stringWithFormat:@"%@?%@", baseUrlString, keyValuePairsString];
+    
+    NSCAssert([NSURL URLWithString:completeGetUrlString], @"%@ 不是一个合法的URL字符串", completeGetUrlString);
+    
+    return completeGetUrlString;
 }
 
 #pragma mark - cache
@@ -266,7 +315,7 @@
         return nil;
     }
     else {
-    
+        
     }
     
     return cache;
