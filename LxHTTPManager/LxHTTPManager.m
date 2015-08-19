@@ -212,7 +212,12 @@
 {
     PRINTF(@"LxHTTPManager: URL: %@", operation.request.URL);    //
     
-    NSCAssert([responseObject isKindOfClass:[NSDictionary class]], @"返回的响应非字典");  //
+    if ([responseObject isKindOfClass:[NSDictionary class]] == NO) {
+        
+        NSError * error = [NSError errorWithDomain:@"RESPONSE_TYPE_ERROR_DOMAIN" code:-NSIntegerMax userInfo:@{NSLocalizedDescriptionKey:@"返回的响应非字典类型"}];
+        responseCallBack(nil, error);
+        return;
+    }
     
     NSDictionary * responseDictionary = (NSDictionary *)responseObject;
     PRINTF(@"LxHTTPManager: jsonString: %@", responseDictionary.jsonString);    //
