@@ -127,7 +127,7 @@
 }
 
 + (AFHTTPRequestOperation *)uploadData:(NSData *)data
-                         forRequestkey:(NSString *)requestkey
+                                    to:(NSString *)requestkey
                             parameters:(NSDictionary *)parameters
                               fileName:(NSString *)fileName
                               mimeType:(NSString *)mimeType

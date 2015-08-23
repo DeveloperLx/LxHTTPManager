@@ -25,6 +25,14 @@ DECLARE_STRING_CONST(REQUEST_FRIEND_LIST);
 
 #pragma mark - constants
 
+typedef NS_ENUM(NSUInteger, LxDataUpdateStrategy) {
+    LxDataUpdateStrategyAdd,
+    LxDataUpdateStrategyReload,
+};
+//  NSInteger _currentPage;
+//  LxDataUpdateStrategy _needUpdateStrategy;
+//  BOOL _hasNextPage;
+
 static NSString * const ROOT_ADDRESS = @"http://...";
 static NSString * const IMAGE_ROOT_ADDRESS = @"http://...";
 
@@ -55,7 +63,7 @@ typedef void (^ProgressCallBack)(NSInteger bytesRead, NSInteger totalBytesRead, 
                 responseCallBack:(ResponseCallback)responseCallBack;
 
 + (AFHTTPRequestOperation *)uploadData:(NSData *)data
-                         forRequestkey:(NSString *)requestkey
+                                    to:(NSString *)requestkey
                             parameters:(NSDictionary *)parameters
                               fileName:(NSString *)fileName
                               mimeType:(NSString *)mimeType
