@@ -203,6 +203,8 @@
                                responseCallBack:responseCallBack];
     }];
     
+    [downloadOperation start];
+    
     return downloadOperation;
 }
 
