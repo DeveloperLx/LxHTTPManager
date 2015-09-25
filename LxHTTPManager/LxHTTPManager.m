@@ -72,6 +72,7 @@
 
 + (AFHTTPRequestOperation *)GET:(NSString *)requestKey
                      parameters:(NSDictionary *)parameters
+               progressCallBack:(ProgressCallBack)progressCallBack
                responseCallBack:(ResponseCallback)responseCallBack
 {
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
@@ -95,11 +96,17 @@
                                 responseCallBack:responseCallBack];
      }];
     
+    requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        
+        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+    };
+    
     return requestOperation;
 }
 
 + (AFHTTPRequestOperation *)POST:(NSString *)requestKey
                       parameters:(NSDictionary *)parameters
+                progressCallBack:(ProgressCallBack)progressCallBack
                 responseCallBack:(ResponseCallback)responseCallBack
 {
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
@@ -123,6 +130,11 @@
                                 responseCallBack:responseCallBack];
      }];
     
+    requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        
+        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+    };
+    
     return requestOperation;
 }
 
@@ -131,6 +143,7 @@
                             parameters:(NSDictionary *)parameters
                               fileName:(NSString *)fileName
                               mimeType:(NSString *)mimeType
+                      progressCallBack:(ProgressCallBack)progressCallBack
                       responseCallBack:(ResponseCallback)responseCallBack
 {
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
@@ -153,6 +166,47 @@
                                            error:error
                                 responseCallBack:responseCallBack];
      }];
+    
+    requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        
+        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+    };
+    
+    return requestOperation;
+}
+
++ (AFHTTPRequestOperation *)updateMultipartData:(NSString *)requestkey
+                                     parameters:(NSDictionary *)parameters
+                               constructingBody:(ConstructingBodyCallBack)constructingBody
+                               progressCallBack:(ProgressCallBack)progressCallBack
+                               responseCallBack:(ResponseCallback)responseCallBack
+{
+    NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
+    
+    urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
+                                                               parameters:parameters];
+    
+    AFHTTPRequestOperation * requestOperation =
+    [[LxHTTPManager sharedOperationManager]
+     POST:urlString
+     parameters:parameters
+     constructingBodyWithBlock:constructingBody
+     success:^(AFHTTPRequestOperation *operation, id responseObject) {
+         [LxHTTPManager dealWithSuccessOperation:operation
+                                  responseObject:responseObject
+                                responseCallBack:responseCallBack];
+     }
+     failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+         [LxHTTPManager dealWithFailureOperation:operation
+                                           error:error
+                                responseCallBack:responseCallBack];
+     }];
+    
+    requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        
+        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+    };
+    
     return requestOperation;
 }
 
@@ -221,8 +275,9 @@
         return;
     }
     
+    PRINTF(@"LxHTTPManager: responseString: %@", operation.responseString);    //
+    
     NSDictionary * responseDictionary = (NSDictionary *)responseObject;
-    PRINTF(@"LxHTTPManager: jsonString: %@", responseDictionary.jsonString);    //
     
     NSInteger statusCode = [LxHTTPManager statusCodeForResponseDictionary:responseDictionary];
     NSString * statusMessage = [LxHTTPManager statusMessageForResponseDictionary:responseDictionary];
@@ -376,31 +431,6 @@
     }
     
     return cache;
-}
-
-@end
-
-@implementation NSObject (jsonString)
-
-- (NSString *)jsonString
-{
-    if ([NSJSONSerialization isValidJSONObject:self]) {
-        NSError * error = nil;
-        NSData * jsonData = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingPrettyPrinted error:&error];
-        if (error) {
-            return error.description;
-        }
-        else if (jsonData) {
-            return [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
-        }
-        else {
-            return @"Can't express with a json string!";
-        }
-    }
-    else {
-        return @"Can't express with a json string!";
-    }
-    return nil;
 }
 
 @end

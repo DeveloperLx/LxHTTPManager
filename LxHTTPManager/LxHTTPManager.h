@@ -32,6 +32,7 @@ typedef NS_ENUM(NSUInteger, LxDataUpdateStrategy) {
 //  NSInteger _currentPage;
 //  LxDataUpdateStrategy _needUpdateStrategy;
 //  BOOL _hasNextPage;
+//  NSTimeInterval _lastUpdateTimeStamp;
 
 static NSString * const ROOT_ADDRESS = @"http://...";
 static NSString * const IMAGE_ROOT_ADDRESS = @"http://...";
@@ -42,6 +43,7 @@ static NSTimeInterval const IMAGE_CACHE_DURATION = 7 * 24 * 60 * 60;
 
 typedef void (^ResponseCallback)(NSDictionary * responseDictionary, NSError * error);
 typedef void (^ProgressCallBack)(NSInteger bytesRead, NSInteger totalBytesRead, NSInteger totalBytesExpectedToRead);
+typedef void (^ConstructingBodyCallBack)(id<AFMultipartFormData> formData);
 
 @interface LxHTTPManager : NSObject
 
@@ -56,10 +58,12 @@ typedef void (^ProgressCallBack)(NSInteger bytesRead, NSInteger totalBytesRead, 
 
 + (AFHTTPRequestOperation *)GET:(NSString *)requestKey
                      parameters:(NSDictionary *)parameters
+               progressCallBack:(ProgressCallBack)progressCallBack
                responseCallBack:(ResponseCallback)responseCallBack;
 
 + (AFHTTPRequestOperation *)POST:(NSString *)requestKey
                       parameters:(NSDictionary *)parameters
+                progressCallBack:(ProgressCallBack)progressCallBack
                 responseCallBack:(ResponseCallback)responseCallBack;
 
 + (AFHTTPRequestOperation *)uploadData:(NSData *)data
@@ -67,7 +71,14 @@ typedef void (^ProgressCallBack)(NSInteger bytesRead, NSInteger totalBytesRead, 
                             parameters:(NSDictionary *)parameters
                               fileName:(NSString *)fileName
                               mimeType:(NSString *)mimeType
+                      progressCallBack:(ProgressCallBack)progressCallBack
                       responseCallBack:(ResponseCallback)responseCallBack;
+
++ (AFHTTPRequestOperation *)updateMultipartData:(NSString *)requestkey
+                                     parameters:(NSDictionary *)parameters
+                               constructingBody:(ConstructingBodyCallBack)constructingBody
+                               progressCallBack:(ProgressCallBack)progressCallBack
+                               responseCallBack:(ResponseCallback)responseCallBack;
 
 + (AFHTTPRequestOperation *)downloadFrom:(NSString *)requestkey
                               parameters:(NSDictionary *)parameters
@@ -80,11 +91,5 @@ typedef void (^ProgressCallBack)(NSInteger bytesRead, NSInteger totalBytesRead, 
 + (NSString *)generateCacheIdentifierBy:(NSString * (^)(void))makeCacheIdentifier;
 + (BOOL)saveCache:(NSDictionary *)cache withIdentifier:(NSString *)cacheIdentifier;
 + (NSDictionary *)cacheWithIdentifier:(NSString *)cacheIdentifier;
-
-@end
-
-@interface NSObject (jsonString)
-
-@property (nonatomic,readonly) NSString * jsonString;
 
 @end
