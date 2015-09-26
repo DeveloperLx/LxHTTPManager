@@ -96,9 +96,11 @@
                                 responseCallBack:responseCallBack];
      }];
     
-    requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
-        
-        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+    requestOperation.downloadProgressBlock = ^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+        [LxHTTPManager dealWithProgressWithBytesRead:bytesRead
+                                      totalBytesRead:totalBytesRead
+                            totalBytesExpectedToRead:totalBytesExpectedToRead
+                                    progressCallBack:progressCallBack];
     };
     
     return requestOperation;
@@ -130,9 +132,11 @@
                                 responseCallBack:responseCallBack];
      }];
     
-    requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
-        
-        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+    requestOperation.downloadProgressBlock = ^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+        [LxHTTPManager dealWithProgressWithBytesRead:bytesRead
+                                      totalBytesRead:totalBytesRead
+                            totalBytesExpectedToRead:totalBytesExpectedToRead
+                                    progressCallBack:progressCallBack];
     };
     
     return requestOperation;
@@ -168,8 +172,10 @@
      }];
     
     requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
-        
-        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+        [LxHTTPManager dealWithProgressWithBytesRead:bytesWritten
+                                      totalBytesRead:totalBytesWritten
+                            totalBytesExpectedToRead:totalBytesExpectedToWrite
+                                    progressCallBack:progressCallBack];
     };
     
     return requestOperation;
@@ -203,8 +209,10 @@
      }];
     
     requestOperation.uploadProgressBlock = ^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
-        
-        progressCallBack((NSInteger)bytesWritten, (NSInteger)totalBytesWritten, (NSInteger)totalBytesExpectedToWrite);
+        [LxHTTPManager dealWithProgressWithBytesRead:bytesWritten
+                                      totalBytesRead:totalBytesWritten
+                            totalBytesExpectedToRead:totalBytesExpectedToWrite
+                                    progressCallBack:progressCallBack];
     };
     
     return requestOperation;
@@ -243,8 +251,10 @@
     downloadOperation.outputStream = [NSOutputStream outputStreamToFileAtPath:localPath append:YES];
     
     downloadOperation.downloadProgressBlock = ^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
-        
-        progressCallBack((NSInteger)bytesRead, (NSInteger)totalBytesRead, (NSInteger)totalBytesExpectedToRead);
+        [LxHTTPManager dealWithProgressWithBytesRead:bytesRead
+                                      totalBytesRead:totalBytesRead
+                            totalBytesExpectedToRead:totalBytesExpectedToRead
+                                    progressCallBack:progressCallBack];
     };
     
     [downloadOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -301,6 +311,15 @@
     PRINTF(@"LxHTTPManager: error: %@", error);    //
     PRINTF(@"---------Request failed---------"); //
     responseCallBack(nil, error);
+}
+
++ (void)dealWithProgressWithBytesRead:(NSUInteger)bytesRead
+                       totalBytesRead:(long long)totalBytesRead
+             totalBytesExpectedToRead:(long long)totalBytesExpectedToRead
+                     progressCallBack:(ProgressCallBack)progressCallBack
+{
+    PRINTF(@"LxHTTPManager: progress: >%zi< %zi/%zi", bytesRead, totalBytesRead, totalBytesExpectedToRead);    //
+    progressCallBack((NSInteger)bytesRead, (NSInteger)totalBytesRead, (NSInteger)totalBytesExpectedToRead);
 }
 
 + (NSString *)buildCompleteGetUrlStringWithBaseUrlString:(NSString *)baseUrlString

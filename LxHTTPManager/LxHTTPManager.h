@@ -51,7 +51,7 @@ typedef void (^ConstructingBodyCallBack)(id<AFMultipartFormData> formData);
 
 + (NSDictionary *)requestDictionary;    //  need custom
 
-+ (NSString *)urlStringForRequestKey:(NSString *)requestKey;
++ (NSString *)urlStringForRequestKey:(NSString *)requestKey;    // need custom for your project.
 + (BOOL)isValidForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
 + (NSInteger)statusCodeForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
 + (NSString *)statusMessageForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
