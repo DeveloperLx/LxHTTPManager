@@ -278,6 +278,8 @@
 {
     PRINTF(@"LxHTTPManager: URL: %@", operation.request.URL);    //
     
+    [LxHTTPManager judgeAndPrintPostParameters:operation];
+    
     if ([responseObject isKindOfClass:[NSDictionary class]] == NO) {
         
         NSError * error = [NSError errorWithDomain:@"RESPONSE_TYPE_ERROR_DOMAIN" code:-NSIntegerMax userInfo:@{NSLocalizedDescriptionKey:@"返回的响应非字典类型"}];
@@ -308,6 +310,9 @@
                 responseCallBack:(ResponseCallback)responseCallBack
 {
     PRINTF(@"LxHTTPManager: URL: %@", operation.request.URL);    //
+    
+    [LxHTTPManager judgeAndPrintPostParameters:operation];
+    
     PRINTF(@"LxHTTPManager: error: %@", error);    //
     PRINTF(@"---------Request failed---------"); //
     responseCallBack(nil, error);
@@ -339,6 +344,35 @@
     NSCAssert([NSURL URLWithString:completeGetUrlString], @"%@ 不是一个合法的URL字符串", completeGetUrlString);
     
     return completeGetUrlString;
+}
+
++ (NSDictionary *)judgeAndPrintPostParameters:(AFHTTPRequestOperation *)requestOperation
+{
+    if ([requestOperation.request.HTTPMethod isEqualToString:@"POST"]) {
+        
+        NSMutableDictionary * mutableParameters = [NSMutableDictionary dictionary];
+        
+        NSString * parametersString = [[NSString alloc]initWithData:requestOperation.request.HTTPBody encoding:NSUTF8StringEncoding];
+        
+        NSArray * parameterStringArray = [parametersString componentsSeparatedByString:@"&"];
+        for (NSString * parameterString in parameterStringArray) {
+            
+            NSArray * keyValueArray = [parameterString componentsSeparatedByString:@"="];
+            [mutableParameters setValue:keyValueArray.lastObject forKey:keyValueArray.firstObject];
+        }
+        
+        NSError * error = nil;
+        
+        NSData * parametersJsonData = [NSJSONSerialization dataWithJSONObject:mutableParameters options:NSJSONWritingPrettyPrinted error:&error];
+        NSString * parametersJson = [[NSString alloc]initWithData:parametersJsonData encoding:NSUTF8StringEncoding];
+        
+        PRINTF(@"LxHTTPManager: request parameters: %@", parametersJson);    //
+        
+        return [NSDictionary dictionaryWithDictionary:mutableParameters];
+    }
+    else {
+        return nil;
+    }
 }
 
 #pragma mark - cache
