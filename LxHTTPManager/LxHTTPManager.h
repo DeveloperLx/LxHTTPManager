@@ -7,6 +7,7 @@
 //
 
 #import <AFNetworking/AFNetworking.h>
+#import <AFNetworkReachabilityManager.h>
 
 #pragma mark - RequestKey
 
@@ -14,14 +15,16 @@
 #define DECLARE_STRING_CONST(str) static NSString * const str = @stringify(str)
 #define PRINTF(fmt, ...)    printf("%s\n",[[NSString stringWithFormat:fmt,##__VA_ARGS__]UTF8String])
 
-DECLARE_STRING_CONST(REQUEST_LOGIN);
-DECLARE_STRING_CONST(REQUEST_THIRD_LOGIN);
-DECLARE_STRING_CONST(REQUEST_REGISTER);
-DECLARE_STRING_CONST(REQUEST_PHONE_VERIFY_CODE);
-DECLARE_STRING_CONST(REQUEST_CHANGE_USERNAME);
-DECLARE_STRING_CONST(REQUEST_CHANGE_PASSWORD);
-DECLARE_STRING_CONST(REQUEST_USER_DETAIL);
-DECLARE_STRING_CONST(REQUEST_FRIEND_LIST);
+static NSString * const REQUEST_LOGIN = @"login.php";
+static NSString * const REQUEST_THIRD_LOGIN = @"third_login.php";
+static NSString * const REQUEST_REGISTER = @"register.php";
+static NSString * const REQUEST_PHONE_VERIFY_CODE = @"phone_veridy_code.php";
+static NSString * const REQUEST_CHANGE_USERNAME = @"change_username.php";
+static NSString * const REQUEST_CHANGE_PASSWORD = @"change_password.php";
+static NSString * const REQUEST_CHANGE_AVATAR = @"change_avatar.php";
+static NSString * const REQUEST_USER_DETAIL = @"user_detail.php";
+static NSString * const REQUEST_FRIEND_LIST = @"friend_list.php";
+//  ......
 
 #pragma mark - constants
 
@@ -49,8 +52,7 @@ typedef void (^ConstructingBodyCallBack)(id<AFMultipartFormData> formData);
 
 #pragma mark - request
 
-+ (NSDictionary *)requestDictionary;    //  need custom
-
++ (AFNetworkReachabilityStatus)checkNetworkReachability;
 + (NSString *)urlStringForRequestKey:(NSString *)requestKey;    // need custom for your project.
 + (BOOL)isValidForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.
 + (NSInteger)statusCodeForResponseDictionary:(NSDictionary *)responseDictionary;    // need custom for your project.

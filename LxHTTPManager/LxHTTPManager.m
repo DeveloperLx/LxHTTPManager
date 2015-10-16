@@ -10,27 +10,6 @@
 
 @implementation LxHTTPManager
 
-+ (NSDictionary *)requestDictionary
-{
-    static NSDictionary * requestDictionary = nil;
-    static dispatch_once_t onceToken = 0;
-    dispatch_once(&onceToken, ^{
-        
-        requestDictionary = @{
-                              REQUEST_LOGIN : @"login.php",
-                              REQUEST_THIRD_LOGIN : @"third_login.php",
-                              REQUEST_REGISTER : @"register.php",
-                              REQUEST_PHONE_VERIFY_CODE : @"phone_veridy_core.php",
-                              REQUEST_CHANGE_USERNAME : @"change_username.php",
-                              REQUEST_CHANGE_PASSWORD : @"change_password.php",
-                              REQUEST_USER_DETAIL : @"user_detail.php",
-                              REQUEST_FRIEND_LIST : @"friend_list.php"
-                              // ......
-                              };
-    });
-    return requestDictionary;
-}
-
 + (AFHTTPRequestOperationManager *)sharedOperationManager
 {
     static AFHTTPRequestOperationManager * sharedOperationManager = nil;
@@ -44,11 +23,38 @@
     return sharedOperationManager;
 }
 
++ (AFNetworkReachabilityStatus)checkNetworkReachability
+{
+    AFNetworkReachabilityStatus networkReachabilityStatus = [AFNetworkReachabilityManager sharedManager].networkReachabilityStatus;
+    
+    switch (networkReachabilityStatus) {
+        case AFNetworkReachabilityStatusUnknown: {
+            PRINTF(@"网络未知状态");
+            break;
+        }
+        case AFNetworkReachabilityStatusNotReachable: {
+            PRINTF(@"网络未连接");
+            break;
+        }
+        case AFNetworkReachabilityStatusReachableViaWWAN: {
+            PRINTF(@"网络通过蜂窝连接");
+            break;
+        }
+        case AFNetworkReachabilityStatusReachableViaWiFi: {
+            PRINTF(@"网络通过wifi连接");
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    
+    return networkReachabilityStatus;
+}
+
 + (NSString *)urlStringForRequestKey:(NSString *)requestKey
 {
-    NSString * urlString = [[LxHTTPManager requestDictionary] valueForKey:requestKey];
-    
-    urlString = [ROOT_ADDRESS stringByAppendingPathComponent:urlString];
+    NSString * urlString = [ROOT_ADDRESS stringByAppendingPathComponent:requestKey];
     
     NSCAssert([NSURL URLWithString:urlString], @"无法获取正确的URL地址！");
     
@@ -75,6 +81,10 @@
                progressCallBack:(ProgressCallBack)progressCallBack
                responseCallBack:(ResponseCallback)responseCallBack
 {
+    if ([LxHTTPManager checkNetworkReachability] == AFNetworkReachabilityStatusNotReachable) {
+        return nil;
+    }
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
     PRINTF(@"-------Request begin-------"); //
@@ -111,6 +121,10 @@
                 progressCallBack:(ProgressCallBack)progressCallBack
                 responseCallBack:(ResponseCallback)responseCallBack
 {
+    if ([LxHTTPManager checkNetworkReachability] == AFNetworkReachabilityStatusNotReachable) {
+        return nil;
+    }
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
     PRINTF(@"-------Request begin-------"); //
@@ -150,6 +164,10 @@
                       progressCallBack:(ProgressCallBack)progressCallBack
                       responseCallBack:(ResponseCallback)responseCallBack
 {
+    if ([LxHTTPManager checkNetworkReachability] == AFNetworkReachabilityStatusNotReachable) {
+        return nil;
+    }
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
     
     urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
@@ -187,6 +205,10 @@
                                progressCallBack:(ProgressCallBack)progressCallBack
                                responseCallBack:(ResponseCallback)responseCallBack
 {
+    if ([LxHTTPManager checkNetworkReachability] == AFNetworkReachabilityStatusNotReachable) {
+        return nil;
+    }
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
     
     urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
@@ -224,6 +246,10 @@
                         progressCallBack:(ProgressCallBack)progressCallBack
                         responseCallBack:(ResponseCallback)responseCallBack
 {
+    if ([LxHTTPManager checkNetworkReachability] == AFNetworkReachabilityStatusNotReachable) {
+        return nil;
+    }
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
     
     urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
