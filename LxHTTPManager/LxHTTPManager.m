@@ -10,15 +10,19 @@
 
 @implementation LxHTTPManager
 
-+ (AFHTTPRequestOperationManager *)sharedOperationManager
++ (AFHTTPRequestOperationManager *)sharedOperationManager   //  仅能用来处理返回json字符串的请求
 {
     static AFHTTPRequestOperationManager * sharedOperationManager = nil;
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{
         
         sharedOperationManager = [[AFHTTPRequestOperationManager alloc]init];
-        sharedOperationManager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
         sharedOperationManager.requestSerializer.timeoutInterval = REQUEST_TIMEOUT_DURATION;
+        
+        AFJSONResponseSerializer * responseSerializer = [AFJSONResponseSerializer serializer];
+        responseSerializer.removesKeysWithNullValues = YES;
+        responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+        sharedOperationManager.responseSerializer = responseSerializer;
     });
     return sharedOperationManager;
 }
