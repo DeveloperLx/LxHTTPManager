@@ -89,6 +89,8 @@
         return nil;
     }
     
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
     PRINTF(@"-------Request begin-------"); //
@@ -128,6 +130,8 @@
     if ([LxHTTPManager checkNetworkReachability] == AFNetworkReachabilityStatusNotReachable) {
         return nil;
     }
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestKey];
     
@@ -172,6 +176,8 @@
         return nil;
     }
     
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
     
     urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
@@ -213,6 +219,8 @@
         return nil;
     }
     
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
     
     urlString = [LxHTTPManager buildCompleteGetUrlStringWithBaseUrlString:urlString
@@ -253,6 +261,8 @@
     if ([LxHTTPManager checkNetworkReachability] == AFNetworkReachabilityStatusNotReachable) {
         return nil;
     }
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
     NSString * urlString = [LxHTTPManager urlStringForRequestKey:requestkey];
     
@@ -306,6 +316,8 @@
                   responseObject:(id)responseObject
                 responseCallBack:(ResponseCallback)responseCallBack
 {
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    
     PRINTF(@"LxHTTPManager: URL: %@", operation.request.URL);    //
     
     [LxHTTPManager judgeAndPrintPostParameters:operation];
@@ -339,6 +351,8 @@
                            error:(NSError *)error
                 responseCallBack:(ResponseCallback)responseCallBack
 {
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    
     PRINTF(@"LxHTTPManager: URL: %@", operation.request.URL);    //
     
     [LxHTTPManager judgeAndPrintPostParameters:operation];

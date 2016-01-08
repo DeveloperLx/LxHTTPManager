@@ -29,7 +29,7 @@ static NSString * const REQUEST_FRIEND_LIST = @"friend_list.php";
 #pragma mark - constants
 
 typedef NS_ENUM(NSUInteger, LxDataUpdateStrategy) {
-    LxDataUpdateStrategyAdd,
+    LxDataUpdateStrategyLoadMore,
     LxDataUpdateStrategyReload,
 };
 //  NSInteger _currentPage;
